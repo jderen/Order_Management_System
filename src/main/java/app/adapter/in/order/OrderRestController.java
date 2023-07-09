@@ -1,6 +1,7 @@
 package app.adapter.in.order;
 
 import app.application.order.port.in.facade.OrderFacade;
+import app.application.order.port.in.usecase.CreateOrderCommand;
 import app.domain.foundation.DomainEntityNotFoundException;
 import app.domain.order.Order;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class OrderRestController {
 
     @PostMapping
     public Order createOrder(@RequestBody Order order) {
-        return orderFacade.createOrder(order);
+        return orderFacade.createOrder(new CreateOrderCommand());
     }
 
     @PutMapping
