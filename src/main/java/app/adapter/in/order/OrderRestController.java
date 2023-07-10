@@ -39,17 +39,17 @@ public class OrderRestController {
         return orderFacade.createOrder(new CreateOrderCommand());
     }
 
-    @PutMapping
+    @PutMapping({"/confirm/{id}"})
     public Order confirmOrder(@PathVariable Long id) {
         return orderFacade.confirmOrder(id);
     }
 
-    @PutMapping
+    @PutMapping({"/cancel/{id}"})
     public Order cancelOrder(@PathVariable Long id) {
         return orderFacade.cancelOrder(id);
     }
 
-    @PutMapping
+    @PutMapping({"/complete/{id}"})
     public Order completeOrder(@PathVariable Long id) {
         return orderFacade.completeOrder(id);
     }
