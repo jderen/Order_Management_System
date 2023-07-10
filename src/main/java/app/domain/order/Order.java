@@ -21,4 +21,16 @@ public class Order {
                 .orderStatus(OrderStatus.NEW)
                 .build();
     }
+
+    public void confirm() {
+        this.orderStatus = OrderStatus.CONFIRMED;
+    }
+
+    public void cancel() {
+        this.orderStatus = OrderStatus.CANCELLED;
+    }
+
+    public void complete() {
+        this.orderStatus = OrderStatus.COMPLETED;
+    }
 }
