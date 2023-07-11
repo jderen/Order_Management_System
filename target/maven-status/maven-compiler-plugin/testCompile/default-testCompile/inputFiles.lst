@@ -1,0 +1,12 @@
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\adapter\out\order\persistence\OrderMapperTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\service\FindOrderByIdServiceTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\adapter\out\order\persistence\OrderPersistenceAdapterTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\service\FindAllOrderServiceTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\adapter\in\order\OrderRestControllerTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\service\CancelOrderServiceTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\domain\foundation\DomainEntityNotFoundExceptionTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\port\in\facade\impl\OrderFacadeImplTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\domain\order\OrderTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\service\CreateOrderServiceTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\service\CompleteOrderServiceTest.java
+C:\Users\Kuba\Videos\gitProjects\order-management-system\src\test\java\app\application\order\service\ConfirmOrderServiceTest.java

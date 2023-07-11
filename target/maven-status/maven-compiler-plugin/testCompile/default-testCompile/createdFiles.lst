@@ -1,0 +1,12 @@
+app\application\order\service\CompleteOrderServiceTest.class
+app\application\order\service\ConfirmOrderServiceTest.class
+app\application\order\service\FindOrderByIdServiceTest.class
+app\application\order\service\CreateOrderServiceTest.class
+app\adapter\out\order\persistence\OrderPersistenceAdapterTest.class
+app\adapter\out\order\persistence\OrderMapperTest.class
+app\application\order\service\FindAllOrderServiceTest.class
+app\domain\order\OrderTest.class
+app\application\order\service\CancelOrderServiceTest.class
+app\adapter\in\order\OrderRestControllerTest.class
+app\domain\foundation\DomainEntityNotFoundExceptionTest.class
+app\application\order\port\in\facade\impl\OrderFacadeImplTest.class
