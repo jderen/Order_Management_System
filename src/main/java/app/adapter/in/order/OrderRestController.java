@@ -35,7 +35,7 @@ public class OrderRestController {
     }
 
     @PostMapping
-    public Order createOrder() {
+    public Order createOrder(@RequestBody OrderWebTO orderWebTO) {
         return orderFacade.createOrder(new CreateOrderCommand());
     }
 
