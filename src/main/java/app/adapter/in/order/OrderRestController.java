@@ -35,7 +35,7 @@ public class OrderRestController {
     }
 
     @PostMapping
-    public Order createOrder(@RequestBody Order order) {
+    public Order createOrder() {
         return orderFacade.createOrder(new CreateOrderCommand());
     }
 
