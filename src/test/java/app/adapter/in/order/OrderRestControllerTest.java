@@ -4,12 +4,15 @@ import app.application.order.port.in.facade.OrderFacade;
 import app.domain.foundation.DomainEntityNotFoundException;
 import app.domain.order.Order;
 import app.domain.order.OrderStatus;
+import app.domain.order.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +31,11 @@ class OrderRestControllerTest {
 
     private static final Long ID = 1L;
     private static final Long VERSION = 2L;
+    private static final BigDecimal PRICE = new BigDecimal(1.50);
+    private static final PaymentMethod PAYMENT_METHOD = PaymentMethod.CREDIT_CARD;
+    private static final String NAME = "Order name";
+    private static final String DESCRIPTION = "Test description";
+    private static final LocalDateTime ORDER_DATE = LocalDateTime.now();
 
     @Mock
     private OrderFacade orderFacade;
@@ -51,9 +59,7 @@ class OrderRestControllerTest {
         // then
         verify(orderFacade, times(1)).findAllOrders();
         assertTrue(!orders.isEmpty());
-        assertThat(orders.get(0).getId(), is(ID));
-        assertThat(orders.get(0).getVersion(), is(VERSION));
-        assertThat(orders.get(0).getOrderStatus(), is(OrderStatus.NEW));
+        assertOrderAttributes(orders.get(0), OrderStatus.NEW);
     }
 
     @Test
@@ -66,10 +72,7 @@ class OrderRestControllerTest {
 
         // then
         verify(orderFacade, times(1)).findOrderById(ID);
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.NEW));
+        assertOrderAttributes(order, OrderStatus.NEW);
     }
 
     @Test
@@ -90,14 +93,11 @@ class OrderRestControllerTest {
         when(orderFacade.createOrder(any())).thenReturn(createOrder(OrderStatus.NEW));
 
         // when
-        Order order = orderRestController.createOrder(new OrderWebTO());
+        Order order = orderRestController.createOrder(new OrderWebTO(PRICE, PAYMENT_METHOD, NAME, DESCRIPTION));
 
         // then
         verify(orderFacade, times(1)).createOrder(any());
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.NEW));
+        assertOrderAttributes(order, OrderStatus.NEW);
     }
 
     @Test
@@ -110,10 +110,7 @@ class OrderRestControllerTest {
 
         // then
         verify(orderFacade, times(1)).confirmOrder(ID);
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.CONFIRMED));
+        assertOrderAttributes(order, OrderStatus.CONFIRMED);
     }
 
     @Test
@@ -126,10 +123,7 @@ class OrderRestControllerTest {
 
         // then
         verify(orderFacade, times(1)).cancelOrder(ID);
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.CANCELLED));
+        assertOrderAttributes(order, OrderStatus.CANCELLED);
     }
 
     @Test
@@ -142,17 +136,31 @@ class OrderRestControllerTest {
 
         // then
         verify(orderFacade, times(1)).completeOrder(ID);
+        assertOrderAttributes(order, OrderStatus.COMPLETED);
+    }
+
+    private void assertOrderAttributes(Order order, OrderStatus orderStatus) {
         assertNotNull(order);
         assertThat(order.getId(), is(ID));
         assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.COMPLETED));
+        assertThat(order.getOrderStatus(), is(orderStatus));
+        assertThat(order.getOrderDate(), is(ORDER_DATE));
+        assertThat(order.getPrice(), is(PRICE));
+        assertThat(order.getPaymentMethod(), is(PAYMENT_METHOD));
+        assertThat(order.getName(), is(NAME));
+        assertThat(order.getDescription(), is(DESCRIPTION));
     }
 
     private Order createOrder(OrderStatus orderStatus) {
         return new Order(
                 ID,
                 VERSION,
-                orderStatus);
+                orderStatus,
+                ORDER_DATE,
+                PRICE,
+                PAYMENT_METHOD,
+                NAME,
+                DESCRIPTION);
     }
 
 }

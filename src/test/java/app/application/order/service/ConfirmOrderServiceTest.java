@@ -5,12 +5,15 @@ import app.application.order.port.out.PersistOrderPort;
 import app.domain.foundation.DomainEntityNotFoundException;
 import app.domain.order.Order;
 import app.domain.order.OrderStatus;
+import app.domain.order.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,6 +30,11 @@ class ConfirmOrderServiceTest {
 
     private static final Long ID = 1L;
     private static final Long VERSION = 2L;
+    private static final BigDecimal PRICE = new BigDecimal(1.50);
+    private static final PaymentMethod PAYMENT_METHOD = PaymentMethod.CREDIT_CARD;
+    private static final String NAME = "Order name";
+    private static final String DESCRIPTION = "Test description";
+    private static final LocalDateTime ORDER_DATE = LocalDateTime.now();
 
     @Mock
     private PersistOrderPort persistOrderPort;
@@ -56,10 +64,7 @@ class ConfirmOrderServiceTest {
         // then
         verify(findOrderPort, times(1)).find(ID);
         verify(persistOrderPort, times(1)).persist(any());
-        assertNotNull(result);
-        assertThat(result.getId(), is(ID));
-        assertThat(result.getVersion(), is(VERSION));
-        assertThat(result.getOrderStatus(), is(OrderStatus.CONFIRMED));
+        assertOrderAttributes(result);
     }
 
     @Test
@@ -75,10 +80,27 @@ class ConfirmOrderServiceTest {
         verify(persistOrderPort, never()).persist(any());
     }
 
+    private void assertOrderAttributes(Order order) {
+        assertNotNull(order);
+        assertThat(order.getId(), is(ID));
+        assertThat(order.getVersion(), is(VERSION));
+        assertThat(order.getOrderStatus(), is(OrderStatus.CONFIRMED));
+        assertThat(order.getOrderDate(), is(ORDER_DATE));
+        assertThat(order.getPrice(), is(PRICE));
+        assertThat(order.getPaymentMethod(), is(PAYMENT_METHOD));
+        assertThat(order.getName(), is(NAME));
+        assertThat(order.getDescription(), is(DESCRIPTION));
+    }
+
     private Order createOrder(OrderStatus orderStatus) {
         return new Order(
                 ID,
                 VERSION,
-                orderStatus);
+                orderStatus,
+                ORDER_DATE,
+                PRICE,
+                PAYMENT_METHOD,
+                NAME,
+                DESCRIPTION);
     }
 }

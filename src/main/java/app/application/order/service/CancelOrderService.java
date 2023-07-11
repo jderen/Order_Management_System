@@ -7,6 +7,7 @@ import app.domain.foundation.DomainEntityNotFoundException;
 import app.domain.order.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class CancelOrderService implements CancelOrderUseCase {
     private final FindOrderPort findOrderPort;
 
     @Override
+    @Transactional
     public Order apply(Long id) {
         Order order = findOrderPort.find(id).orElseThrow(() -> new DomainEntityNotFoundException(ORDER_NOT_FOUND + id));
         order.cancel();

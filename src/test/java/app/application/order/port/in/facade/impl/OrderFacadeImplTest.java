@@ -9,12 +9,15 @@ import app.application.order.port.in.usecase.CreateOrderCommand;
 import app.application.order.port.in.usecase.CreateOrderUseCase;
 import app.domain.order.Order;
 import app.domain.order.OrderStatus;
+import app.domain.order.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +33,11 @@ class OrderFacadeImplTest {
 
     private static final Long ID = 1L;
     private static final Long VERSION = 2L;
+    private static final BigDecimal PRICE = new BigDecimal(1.50);
+    private static final PaymentMethod PAYMENT_METHOD = PaymentMethod.CREDIT_CARD;
+    private static final String NAME = "Order name";
+    private static final String DESCRIPTION = "Test description";
+    private static final LocalDateTime ORDER_DATE = LocalDateTime.now();
 
     @Mock
     private FindAllOrdersQuery findAllOrdersQuery;
@@ -68,9 +76,7 @@ class OrderFacadeImplTest {
         // then
         verify(findAllOrdersQuery, times(1)).execute();
         assertTrue(!orders.isEmpty());
-        assertThat(orders.get(0).getId(), is(ID));
-        assertThat(orders.get(0).getVersion(), is(VERSION));
-        assertThat(orders.get(0).getOrderStatus(), is(OrderStatus.CONFIRMED));
+        assertOrderAttributes(orders.get(0), OrderStatus.CONFIRMED);
     }
 
     @Test
@@ -84,15 +90,13 @@ class OrderFacadeImplTest {
         // then
         verify(findOrderByIdQuery, times(1)).execute(ID);
         assertTrue(order.isPresent());
-        assertThat(order.get().getId(), is(ID));
-        assertThat(order.get().getVersion(), is(VERSION));
-        assertThat(order.get().getOrderStatus(), is(OrderStatus.CONFIRMED));
+        assertOrderAttributes(order.get(), OrderStatus.CONFIRMED);
     }
 
     @Test
     void shouldCreateOrder() {
         // given
-        CreateOrderCommand command = new CreateOrderCommand();
+        CreateOrderCommand command = new CreateOrderCommand(PRICE, PAYMENT_METHOD, NAME, DESCRIPTION);
         when(createOrderUseCase.apply(command)).thenReturn(createOrder(OrderStatus.NEW));
 
         // when
@@ -100,10 +104,7 @@ class OrderFacadeImplTest {
 
         // then
         verify(createOrderUseCase, times(1)).apply(command);
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.NEW));
+        assertOrderAttributes(order, OrderStatus.NEW);
     }
 
     @Test
@@ -116,10 +117,7 @@ class OrderFacadeImplTest {
 
         // then
         verify(confirmOrderUseCase, times(1)).apply(ID);
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.CONFIRMED));
+        assertOrderAttributes(order, OrderStatus.CONFIRMED);
     }
 
     @Test
@@ -132,10 +130,7 @@ class OrderFacadeImplTest {
 
         // then
         verify(cancelOrderUseCase, times(1)).apply(ID);
-        assertNotNull(order);
-        assertThat(order.getId(), is(ID));
-        assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.CANCELLED));
+        assertOrderAttributes(order, OrderStatus.CANCELLED);
     }
 
     @Test
@@ -148,16 +143,30 @@ class OrderFacadeImplTest {
 
         // then
         verify(completeOrderUseCase, times(1)).apply(ID);
+        assertOrderAttributes(order, OrderStatus.COMPLETED);
+    }
+
+    private void assertOrderAttributes(Order order, OrderStatus orderStatus) {
         assertNotNull(order);
         assertThat(order.getId(), is(ID));
         assertThat(order.getVersion(), is(VERSION));
-        assertThat(order.getOrderStatus(), is(OrderStatus.COMPLETED));
+        assertThat(order.getOrderStatus(), is(orderStatus));
+        assertThat(order.getOrderDate(), is(ORDER_DATE));
+        assertThat(order.getPrice(), is(PRICE));
+        assertThat(order.getPaymentMethod(), is(PAYMENT_METHOD));
+        assertThat(order.getName(), is(NAME));
+        assertThat(order.getDescription(), is(DESCRIPTION));
     }
 
     private Order createOrder(OrderStatus orderStatus) {
         return new Order(
                 ID,
                 VERSION,
-                orderStatus);
+                orderStatus,
+                ORDER_DATE,
+                PRICE,
+                PAYMENT_METHOD,
+                NAME,
+                DESCRIPTION);
     }
 }

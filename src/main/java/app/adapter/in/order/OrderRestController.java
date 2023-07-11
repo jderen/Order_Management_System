@@ -5,6 +5,7 @@ import app.application.order.port.in.usecase.CreateOrderCommand;
 import app.domain.foundation.DomainEntityNotFoundException;
 import app.domain.order.Order;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,8 +36,8 @@ public class OrderRestController {
     }
 
     @PostMapping
-    public Order createOrder(@RequestBody OrderWebTO orderWebTO) {
-        return orderFacade.createOrder(new CreateOrderCommand());
+    public Order createOrder(@Validated @RequestBody OrderWebTO orderWebTO) {
+        return orderFacade.createOrder(createCreateOrderCommand(orderWebTO));
     }
 
     @PutMapping({"/confirm/{id}"})
@@ -52,5 +53,9 @@ public class OrderRestController {
     @PutMapping({"/complete/{id}"})
     public Order completeOrder(@PathVariable Long id) {
         return orderFacade.completeOrder(id);
+    }
+
+    private CreateOrderCommand createCreateOrderCommand(OrderWebTO orderWebTO) {
+        return new CreateOrderCommand(orderWebTO.getPrice(), orderWebTO.getPaymentMethod(), orderWebTO.getName(), orderWebTO.getDescription());
     }
 }

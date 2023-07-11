@@ -2,6 +2,7 @@ package app.adapter.out.order.persistence;
 
 import app.domain.order.Order;
 import app.domain.order.OrderStatus;
+import app.domain.order.PaymentMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -9,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +31,11 @@ class OrderPersistenceAdapterTest {
     private static final Long ID = 1L;
     private static final Long VERSION = 2L;
     private static final OrderStatus ORDER_STATUS = OrderStatus.CONFIRMED;
+    private static final BigDecimal PRICE = new BigDecimal(1.50);
+    private static final PaymentMethod PAYMENT_METHOD = PaymentMethod.CREDIT_CARD;
+    private static final String NAME = "Order name";
+    private static final String DESCRIPTION = "Test description";
+    private static final LocalDateTime ORDER_DATE = LocalDateTime.now();
 
     @Mock
     private OrderEntityRepository repository;
@@ -56,9 +64,7 @@ class OrderPersistenceAdapterTest {
         // then
         verify(repository, times(1)).findAll();
         assertTrue(!orders.isEmpty());
-        assertThat(orders.get(0).getId(), is(ID));
-        assertThat(orders.get(0).getVersion(), is(VERSION));
-        assertThat(orders.get(0).getOrderStatus(), is(ORDER_STATUS));
+        assertOrderAttributes(orders.get(0));
     }
 
     @Test
@@ -75,9 +81,7 @@ class OrderPersistenceAdapterTest {
         verify(repository, times(1)).findById(ID);
         verify(mapper, times(1)).mapToDomain(orderEntity);
         assertTrue(order.isPresent());
-        assertThat(order.get().getId(), is(ID));
-        assertThat(order.get().getVersion(), is(VERSION));
-        assertThat(order.get().getOrderStatus(), is(ORDER_STATUS));
+        assertOrderAttributes(order.get());
     }
 
     @Test
@@ -98,17 +102,14 @@ class OrderPersistenceAdapterTest {
         verify(mapper, times(1)).mapExistingEntity(order, orderEntity);
         verify(repository, times(1)).save(orderEntity);
         verify(mapper, never()).mapToPersistenceEntity(order);
-        assertNotNull(order);
-        assertThat(savedOrder.getId(), is(ID));
-        assertThat(savedOrder.getVersion(), is(VERSION));
-        assertThat(savedOrder.getOrderStatus(), is(ORDER_STATUS));
+        assertOrderAttributes(savedOrder);
     }
 
     @Test
     void shouldPersistOrderWhenIDDoesNotExist() {
         // given
         OrderEntity orderEntity = createOrderEntity();
-        Order order = new Order(null, null, ORDER_STATUS);
+        Order order = new Order(null, null, ORDER_STATUS, ORDER_DATE, PRICE, PAYMENT_METHOD, NAME, DESCRIPTION);
         when(mapper.mapToDomain(orderEntity)).thenReturn(createOrder());
         when(repository.save(orderEntity)).thenReturn(orderEntity);
         when(mapper.mapToPersistenceEntity(order)).thenReturn(orderEntity);
@@ -122,10 +123,7 @@ class OrderPersistenceAdapterTest {
         verify(mapper, times(1)).mapToPersistenceEntity(order);
         verify(mapper, never()).mapExistingEntity(order, orderEntity);
         verify(repository, never()).findById(ID);
-        assertNotNull(order);
-        assertThat(savedOrder.getId(), is(ID));
-        assertThat(savedOrder.getVersion(), is(VERSION));
-        assertThat(savedOrder.getOrderStatus(), is(ORDER_STATUS));
+        assertOrderAttributes(savedOrder);
     }
 
     @Test
@@ -146,17 +144,32 @@ class OrderPersistenceAdapterTest {
         verify(mapper, never()).mapExistingEntity(order, orderEntity);
     }
 
+    private void assertOrderAttributes(Order order) {
+        assertNotNull(order);
+        assertThat(order.getId(), is(ID));
+        assertThat(order.getVersion(), is(VERSION));
+        assertThat(order.getOrderStatus(), is(ORDER_STATUS));
+        assertThat(order.getOrderDate(), is(ORDER_DATE));
+        assertThat(order.getPrice(), is(PRICE));
+        assertThat(order.getPaymentMethod(), is(PAYMENT_METHOD));
+        assertThat(order.getName(), is(NAME));
+        assertThat(order.getDescription(), is(DESCRIPTION));
+    }
+
+    private OrderEntity createOrderEntity() {
+        return new OrderEntity(ID, VERSION, ORDER_STATUS, ORDER_DATE, PRICE, PAYMENT_METHOD, NAME, DESCRIPTION);
+    }
+
     private Order createOrder() {
         return new Order(
                 ID,
                 VERSION,
-                ORDER_STATUS);
-    }
-    private OrderEntity createOrderEntity() {
-        return new OrderEntity(
-                ID,
-                VERSION,
-                ORDER_STATUS);
+                ORDER_STATUS,
+                ORDER_DATE,
+                PRICE,
+                PAYMENT_METHOD,
+                NAME,
+                DESCRIPTION);
     }
 
 }
